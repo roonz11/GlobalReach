@@ -128,7 +128,7 @@ namespace GlobalReachTest
         }
 
         [Fact]
-        public async Task Get_Should_Retrieve_NoContent_FutureDate()
+        public async Task Get_Should_Retrieve_BadRequest_FutureDate()
         {
             //Arrange
             var invoiceDate = new DateTime(2022, 08, 05);
@@ -139,11 +139,11 @@ namespace GlobalReachTest
             var response = await GetAsync(invoiceDate, preTax, currency);
 
             //Assert
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
-        public async Task Get_Should_Retrieve_NoContent_NegativePreTax()
+        public async Task Get_Should_Retrieve_BadRequest_NegativePreTax()
         {
             //Arrange
             var invoiceDate = new DateTime(2020, 08, 05);
@@ -154,11 +154,11 @@ namespace GlobalReachTest
             var response = await GetAsync(invoiceDate, preTax, currency);
 
             //Assert
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
-        public async Task Get_Should_Retrieve_NoContent_ZeroPreTax()
+        public async Task Get_Should_Retrieve_BadRequest_ZeroPreTax()
         {
             //Arrange
             var invoiceDate = new DateTime(2020, 08, 05);
@@ -169,11 +169,11 @@ namespace GlobalReachTest
             var response = await GetAsync(invoiceDate, preTax, currency);
 
             //Assert
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
-        public async Task Get_Should_Retrieve_NoContent_InvalidCurrency()
+        public async Task Get_Should_Retrieve_BadRequest_InvalidCurrency()
         {
             //Arrange
             var invoiceDate = new DateTime(2020, 08, 05);
@@ -184,11 +184,11 @@ namespace GlobalReachTest
             var response = await GetAsync(invoiceDate, preTax, currency);
 
             //Assert
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
-        public async Task Get_Should_Retrieve_NoContent_EmptyCurrency()
+        public async Task Get_Should_Retrieve_BadRequest_EmptyCurrency()
         {
             //Arrange
             var invoiceDate = new DateTime(2020, 08, 05);
@@ -199,7 +199,7 @@ namespace GlobalReachTest
             var response = await GetAsync(invoiceDate, preTax, currency);
 
             //Assert
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
@@ -248,7 +248,7 @@ namespace GlobalReachTest
         }
 
         [Fact]
-        public async Task Get_Should_Retrieve_NoContent_NewDate()
+        public async Task Get_Should_Retrieve_BadRequest_NewDate()
         {
             //Arrange
             DateTime invoiceDate = new DateTime();
@@ -259,7 +259,7 @@ namespace GlobalReachTest
             var response = await GetAsync(invoiceDate, preTax, currency);
 
             //Assert
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]

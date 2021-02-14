@@ -22,7 +22,10 @@ namespace GlobalReach.Controllers
             try
             {
                 var result = await _taxCalculatorRepository.CalculateCurrencyExchangeAsync(invoiceDate, preTaxAmount, currency);
-                return Ok(result);
+                if (result != null)
+                    return Ok(result);
+                else
+                    return BadRequest();
             }
             catch (Exception e)
             {

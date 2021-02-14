@@ -2,9 +2,9 @@
 {
     public class Exchange
     {
-        public double PreTaxAmount { get; set; }
-        public double TaxAmount { get; set; }
-        public double GrandTotal { get; set; }
+        public string PreTaxAmount { get; set; }
+        public string TaxAmount { get; set; }
+        public string GrandTotal { get; set; }
         public double ExchangeRate { get; set; }
     }
 }

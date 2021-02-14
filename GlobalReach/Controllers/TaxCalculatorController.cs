@@ -17,11 +17,11 @@ namespace GlobalReach.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> Get(DateTime invoiceDate, double preTaxAmmount, string currency)
+        public async Task<IActionResult> GetAsync(DateTime invoiceDate, double preTaxAmount, string currency)
         {
             try
             {
-                var result = await _taxCalculatorRepository.CalculateCurrencyExchangeAsync(invoiceDate, preTaxAmmount, currency);
+                var result = await _taxCalculatorRepository.CalculateCurrencyExchangeAsync(invoiceDate, preTaxAmount, currency);
                 return Ok(result);
             }
             catch (Exception e)

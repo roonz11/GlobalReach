@@ -1,6 +1,6 @@
 ﻿namespace GlobalReach.Models
 {
-    public class ExchangeDTO
+    public class Exchange
     {
         public double PreTaxAmount { get; set; }
         public double TaxAmount { get; set; }

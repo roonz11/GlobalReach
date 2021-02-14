@@ -1,5 +1,7 @@
 ﻿using GlobalReach.Models;
 using GlobalReach.Options;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -7,6 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -15,64 +18,55 @@ namespace GlobalReach.Repositories
     public class TaxCalculatorRepository : ITaxCalculatorRepository
     {
         private readonly FixerOptions _fixerOptions;
-        private readonly TaxRateOptions _taxRateOptions;
+        private readonly Dictionary<string, double> _taxRateOptions;
 
         public TaxCalculatorRepository(IOptions<FixerOptions> fixerOptions,
-            IOptions<TaxRateOptions> taxRateOptions)
+            IOptions<Dictionary<string, double>> taxRateOptions)
         {
             _fixerOptions = fixerOptions.Value;
             _taxRateOptions = taxRateOptions.Value;
         }
 
-        public async Task<ExchangeDTO> CalculateCurrencyExchangeAsync(DateTime invoiceDate, double preTaxAmmount, string currency)
+        public async Task<Exchange> CalculateCurrencyExchangeAsync(DateTime invoiceDate, double preTaxAmmount, string currency)
         {
             var fixerResponse = await GetExchangeRateAsync(invoiceDate, new string[] { currency });
             if (fixerResponse.Success)
             {
-                var exchRate = fixerResponse.Rates.SingleOrDefault(x => x.Symbol == currency)?.Value;
-                if (exchRate != null)
+                double exchRate;
+                fixerResponse.Rates.TryGetValue(currency, out exchRate);
+                var _preTaxAmmount = preTaxAmmount * exchRate;
+
+                double _taxRate;
+                _taxRateOptions.TryGetValue(currency, out _taxRate);
+                var _taxAmount = _preTaxAmmount * _taxRate;
+
+                return new Exchange
                 {
-                    var _preTaxAmmount = preTaxAmmount * exchRate.Value;
-                    var _taxAmmount = _preTaxAmmount * _taxRateOptions.TaxRates.SingleOrDefault(x => x.Symbol == currency)?.Value;
-                    return new ExchangeDTO
-                    {
-                        ExchangeRate = exchRate.Value,
-                        PreTaxAmount = _preTaxAmmount,
-                        TaxAmount = _taxAmmount.Value,
-                        GrandTotal = _preTaxAmmount + _taxAmmount.Value
-                    };
-                }
+                    ExchangeRate = exchRate,
+                    PreTaxAmount = _preTaxAmmount,
+                    TaxAmount = _taxAmount,
+                    GrandTotal = _preTaxAmmount + _taxAmount
+                };
             }
             return null;
         }
 
         public async Task<FixerResponse> GetExchangeRateAsync(DateTime invoiceDate, string[] symbols)
         {
-            var uriBuidler = new UriBuilder(new Uri(_fixerOptions.Uri));
-            uriBuidler.Path = invoiceDate.Date.ToString("yyyy-MM-dd");
+            var queryString = QueryHelpers.ParseQuery(string.Empty);
+            queryString.Add("access_key", _fixerOptions.ApiKey);
+            queryString.Add("symbols", string.Join(",", symbols));
 
-            var query = HttpUtility.ParseQueryString(uriBuidler.Query);
-            query["access_key"] = _fixerOptions.ApiKey;
-            query["symbols"] = string.Join(",", symbols);
-            uriBuidler.Query = query.ToString();
+            var uriBuilder = new StringBuilder(_fixerOptions.Uri)
+                            .Append(invoiceDate.Date.ToString("yyyy-MM-dd"))
+                            .Append(QueryString.Create(queryString).ToString());
 
+            
             using (var httpClient = new HttpClient())
             {
-                var response = await httpClient.GetAsync(uriBuidler.ToString());
-                using (var urlStream = await response.Content.ReadAsStreamAsync())
-                {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(FixerResponse));
-                        var fixerResponse = serializer.ReadObject(urlStream) as FixerResponse;
-                        return fixerResponse;
-                    }
-                    else
-                        throw new Exception("Failed to get exchange rate");
-                }
+                var streamTask = await httpClient.GetStreamAsync(uriBuilder.ToString());
+                return await JsonSerializer.DeserializeAsync<FixerResponse>(streamTask);                
             }
-
-
         }
     }
 }

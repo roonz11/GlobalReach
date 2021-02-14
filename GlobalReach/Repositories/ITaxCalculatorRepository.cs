@@ -6,7 +6,7 @@ namespace GlobalReach.Repositories
 {
     public interface ITaxCalculatorRepository
     {
-        Task<ExchangeDTO> CalculateCurrencyExchangeAsync(DateTime invoiceDate, double preTaxAmmount, string currency);
+        Task<Exchange> CalculateCurrencyExchangeAsync(DateTime invoiceDate, double preTaxAmmount, string currency);
         Task<FixerResponse> GetExchangeRateAsync(DateTime invoiceDate, string[] symbols);
     }
 }

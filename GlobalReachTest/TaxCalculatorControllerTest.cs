@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -15,10 +16,17 @@ namespace GlobalReachTest
     public class TaxCalculatorControllerTest : IClassFixture<WebApplicationFactory<GlobalReach.Startup>>
     {
         private readonly HttpClient _httpClient;
-        
+        private readonly Dictionary<string, string> _errorMessage;
         public TaxCalculatorControllerTest(WebApplicationFactory<GlobalReach.Startup> appFactory)
         {
             _httpClient = appFactory.CreateClient();
+            _errorMessage = new Dictionary<string, string>()
+            {
+                { "invoiceDate", "Invoice Date is Invalid" },
+                { "preTax", "Pre Tax Amount is Invalid" },
+                { "currency", "Currency is not supported" },
+                { "conversionRate", "Could not get conversion rate" }
+            };
         }
 
         private async Task<HttpResponseMessage> GetAsync(DateTime invoiceDate, double preTax, string currency)
@@ -30,14 +38,11 @@ namespace GlobalReachTest
 
             var uri = new StringBuilder(_httpClient.BaseAddress.ToString())
                             .Append("api/")
-                            .Append("taxcalculator")                                                        
+                            .Append("taxcalculator")
                             .Append(QueryString.Create(queryString).ToString())
                             .ToString();
 
             return await _httpClient.GetAsync(uri);
-
-            //return await _httpClient.GetAsync(_httpClient.BaseAddress 
-            //    + $"api/taxcalculator?invoiceDate={invoiceDate}&preTaxAmount={preTax}&currency={currency}");
         }
 
         [Fact]
@@ -49,20 +54,21 @@ namespace GlobalReachTest
             var currency = "USD";
 
             var expected = new Exchange
-            {
-                PreTaxAmount = "146.57 USD",
-                TaxAmount = "14.66 USD",
-                GrandTotal = "161.22 USD",
-                ExchangeRate = 1.187247,
-            };
+                {
+                    PreTaxAmount = "146.57 USD",
+                    TaxAmount = "14.66 USD",
+                    GrandTotal = "161.22 USD",
+                    ExchangeRate = 1.187247,
+                };
 
             //Action
             var response = await GetAsync(invoiceDate, preTax, currency);
             response.EnsureSuccessStatusCode();
             var result = JsonConvert.DeserializeObject<Exchange>(await response.Content.ReadAsStringAsync());
-            
+
             //Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            
             Assert.Equal(expected.PreTaxAmount, result.PreTaxAmount);
             Assert.Equal(expected.TaxAmount, result.TaxAmount);
             Assert.Equal(expected.GrandTotal, result.GrandTotal);
@@ -91,13 +97,13 @@ namespace GlobalReachTest
             var result = JsonConvert.DeserializeObject<Exchange>(await response.Content.ReadAsStringAsync());
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);            
             Assert.Equal(expected.PreTaxAmount, result.PreTaxAmount);
             Assert.Equal(expected.TaxAmount, result.TaxAmount);
             Assert.Equal(expected.GrandTotal, result.GrandTotal);
             Assert.Equal(expected.ExchangeRate, result.ExchangeRate);
         }
-        
+
         [Fact]
         public async Task Get_Should_Retrieve_Calculated_Exchange_CAD()
         {
@@ -134,12 +140,14 @@ namespace GlobalReachTest
             var invoiceDate = new DateTime(2022, 08, 05);
             var preTax = 123.45;
             var currency = "USD";
-            
+
             //Action
             var response = await GetAsync(invoiceDate, preTax, currency);
+            var result = JsonConvert.DeserializeObject<string[]>(await response.Content.ReadAsStringAsync());
 
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(_errorMessage["invoiceDate"], result[0]);
         }
 
         [Fact]
@@ -152,9 +160,11 @@ namespace GlobalReachTest
 
             //Action
             var response = await GetAsync(invoiceDate, preTax, currency);
+            var result = JsonConvert.DeserializeObject<string[]>(await response.Content.ReadAsStringAsync());
 
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(_errorMessage["preTax"], result[0]);
         }
 
         [Fact]
@@ -167,9 +177,11 @@ namespace GlobalReachTest
 
             //Action
             var response = await GetAsync(invoiceDate, preTax, currency);
+            var result = JsonConvert.DeserializeObject<string[]>(await response.Content.ReadAsStringAsync());
 
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(_errorMessage["preTax"], result[0]);
         }
 
         [Fact]
@@ -182,9 +194,11 @@ namespace GlobalReachTest
 
             //Action
             var response = await GetAsync(invoiceDate, preTax, currency);
+            var result = JsonConvert.DeserializeObject<string[]>(await response.Content.ReadAsStringAsync());
 
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(_errorMessage["currency"], result[0]);
         }
 
         [Fact]
@@ -197,9 +211,11 @@ namespace GlobalReachTest
 
             //Action
             var response = await GetAsync(invoiceDate, preTax, currency);
+            var result = JsonConvert.DeserializeObject<string[]>(await response.Content.ReadAsStringAsync());
 
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(_errorMessage["currency"], result[0]);
         }
 
         [Fact]
@@ -212,6 +228,7 @@ namespace GlobalReachTest
 
             //Action
             var response = await GetAsync(invoiceDate, preTax, currency);
+            var result = JsonConvert.DeserializeObject<Exchange>(await response.Content.ReadAsStringAsync());
 
             //Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -227,22 +244,7 @@ namespace GlobalReachTest
 
             //Action
             var response = await GetAsync(invoiceDate, preTax, currency);
-
-            //Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task Get_Should_Retrieve_Exchange_CAD()
-        {
-            //Arrange
-            var invoiceDate = DateTime.Today;
-            var preTax = 123.45;
-            var currency = "CAD";
-
-            //Action
-            var response = await GetAsync(invoiceDate, preTax, currency);
-
+            var result = JsonConvert.DeserializeObject<Exchange>(await response.Content.ReadAsStringAsync());
             //Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
@@ -257,24 +259,11 @@ namespace GlobalReachTest
 
             //Action
             var response = await GetAsync(invoiceDate, preTax, currency);
+            var result = JsonConvert.DeserializeObject<string[]>(await response.Content.ReadAsStringAsync());
 
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task Get_Should_Retrieve_Exchange_EUR()
-        {
-            //Arrange
-            var invoiceDate = DateTime.Today;
-            var preTax = 123.45;
-            var currency = "EUR";
-
-            //Action
-            var response = await GetAsync(invoiceDate, preTax, currency);
-
-            //Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(_errorMessage["conversionRate"], result[0]);
         }
     }
 }

@@ -1,12 +1,11 @@
 using GlobalReach.Options;
-using GlobalReach.Repositories;
+using GlobalReach.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace GlobalReach
 {
@@ -24,7 +23,7 @@ namespace GlobalReach
         {
             services.Configure<FixerOptions>(Configuration.GetSection("FixerOptions"));
             services.Configure<Dictionary<string, double>>(Configuration.GetSection("TaxRateOptions"));
-            services.AddScoped<ITaxCalculatorRepository, TaxCalculatorRepository>();
+            services.AddScoped<ITaxCalculatorService, TaxCalculatorService>();
             services.AddControllers();
         }
 

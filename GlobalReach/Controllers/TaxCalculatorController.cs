@@ -1,4 +1,4 @@
-﻿using GlobalReach.Repositories;
+﻿using GlobalReach.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -9,23 +9,34 @@ namespace GlobalReach.Controllers
     [ApiController]
     public class TaxCalculatorController : ControllerBase
     {
-        private readonly ITaxCalculatorRepository _taxCalculatorRepository;
+        private readonly ITaxCalculatorService _taxCalculatorService;
 
-        public TaxCalculatorController(ITaxCalculatorRepository taxCalculatorRepository)
+        public TaxCalculatorController(ITaxCalculatorService taxCalculatorService)
         {
-            _taxCalculatorRepository = taxCalculatorRepository;
+            _taxCalculatorService = taxCalculatorService;
         }
         
+        /// <summary>
+        /// Calculates Exchange rate from EUR to either USD or CAN
+        /// 
+        /// Assuming all inputs are in EUR -- given the 3 input constraint I was considering using a string
+        /// for preTaxAount and splitting the value from the currency, then validating that both amount and currency
+        /// I would prefer adding another parameter "fromCurrency" to avoid parsing
+        /// </summary>
+        /// <param name="invoiceDate"></param>
+        /// <param name="preTaxAmount"></param>
+        /// <param name="currency"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GetAsync(DateTime invoiceDate, double preTaxAmount, string currency)
         {
             try
             {
-                var result = await _taxCalculatorRepository.CalculateCurrencyExchangeAsync(invoiceDate, preTaxAmount, currency);
-                if (result != null)
-                    return Ok(result);
+                var result = await _taxCalculatorService.CalculateCurrencyExchangeAsync(invoiceDate, preTaxAmount, currency);
+                if (result.Success)
+                    return Ok(result.Exchange);
                 else
-                    return BadRequest();
+                    return BadRequest(result.Errors);
             }
             catch (Exception e)
             {

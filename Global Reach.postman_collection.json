@@ -1,0 +1,111 @@
+{
+	"info": {
+		"_postman_id": "72ec0cef-13a2-4089-b3cc-e5ffdfd19f5c",
+		"name": "Global Reach",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "USD",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:44324/api/TaxCalculator?invoiceDate=2020-08-05&preTaxAmount=123.45&currency=USD",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44324",
+					"path": [
+						"api",
+						"TaxCalculator"
+					],
+					"query": [
+						{
+							"key": "invoiceDate",
+							"value": "2020-08-05"
+						},
+						{
+							"key": "preTaxAmount",
+							"value": "123.45"
+						},
+						{
+							"key": "currency",
+							"value": "USD"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EUR",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:44324/api/TaxCalculator?invoiceDate=2019-07-12&preTaxAmount=1000&currency=EUR",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44324",
+					"path": [
+						"api",
+						"TaxCalculator"
+					],
+					"query": [
+						{
+							"key": "invoiceDate",
+							"value": "2019-07-12"
+						},
+						{
+							"key": "preTaxAmount",
+							"value": "1000"
+						},
+						{
+							"key": "currency",
+							"value": "EUR"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CAD",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:44324/api/TaxCalculator?invoiceDate=2020-08-19&preTaxAmount=6543.21&currency=CAD",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44324",
+					"path": [
+						"api",
+						"TaxCalculator"
+					],
+					"query": [
+						{
+							"key": "invoiceDate",
+							"value": "2020-08-19"
+						},
+						{
+							"key": "preTaxAmount",
+							"value": "6543.21"
+						},
+						{
+							"key": "currency",
+							"value": "CAD"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

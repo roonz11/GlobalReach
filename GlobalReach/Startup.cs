@@ -24,6 +24,7 @@ namespace GlobalReach
             services.Configure<FixerOptions>(Configuration.GetSection("FixerOptions"));
             services.Configure<Dictionary<string, double>>(Configuration.GetSection("TaxRateOptions"));
             services.AddScoped<ITaxCalculatorService, TaxCalculatorService>();
+            services.AddScoped<IExchangeRateService, ExchangeRateService>();
             services.AddControllers();
         }
 

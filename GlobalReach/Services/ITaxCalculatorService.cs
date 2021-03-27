@@ -6,7 +6,6 @@ namespace GlobalReach.Services
 {
     public interface ITaxCalculatorService
     {
-        Task<ExchangeResponse> CalculateCurrencyExchangeAsync(DateTime invoiceDate, double preTaxAmount, string currency);
-        Task<FixerResponse> GetExchangeRateAsync(DateTime invoiceDate, string[] symbols);
+        Task<ExchangeResponse> CalculateCurrencyExchangeAsync(DateTime invoiceDate, double preTaxAmount, string currency);        
     }
 }

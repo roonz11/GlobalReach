@@ -54,12 +54,12 @@ namespace GlobalReachTest
             var currency = "USD";
 
             var expected = new Exchange
-                {
-                    PreTaxAmount = "146.57 USD",
-                    TaxAmount = "14.66 USD",
-                    GrandTotal = "161.22 USD",
-                    ExchangeRate = 1.187247,
-                };
+            {
+                PreTaxAmount = "146.57 USD",
+                TaxAmount = "14.66 USD",
+                GrandTotal = "161.22 USD",
+                ExchangeRate = 1.187247,
+            };
 
             //Action
             var response = await GetAsync(invoiceDate, preTax, currency);
@@ -68,7 +68,7 @@ namespace GlobalReachTest
 
             //Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            
+
             Assert.Equal(expected.PreTaxAmount, result.PreTaxAmount);
             Assert.Equal(expected.TaxAmount, result.TaxAmount);
             Assert.Equal(expected.GrandTotal, result.GrandTotal);
@@ -97,7 +97,7 @@ namespace GlobalReachTest
             var result = JsonConvert.DeserializeObject<Exchange>(await response.Content.ReadAsStringAsync());
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);            
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(expected.PreTaxAmount, result.PreTaxAmount);
             Assert.Equal(expected.TaxAmount, result.TaxAmount);
             Assert.Equal(expected.GrandTotal, result.GrandTotal);
